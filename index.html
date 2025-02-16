@@ -1,4 +1,4 @@
-Powered powered by AI <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous">
@@ -264,6 +264,53 @@ Powered powered by AI <!DOCTYPE html>
     </div>
 
     <script>
+
+
+        
+
+async function getPetResponse(question) {
+    const apiKey = "sk-cbd38b06c0f24fbb96020ccd5f436357"; // Yahan apni API key daalein
+    const endpoint = "https://api.deepseek.com/v1/chat"; // DeepSeek ka endpoint check karein
+
+    const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+            prompt: question,
+            max_tokens: 100
+        })
+    });
+
+    const data = await response.json();
+    return data.choices[0].text; // Response extract karna
+}
+
+// Button click par chatbot response dikhana
+document.getElementById("askQuestion").addEventListener("click", async () => {
+    const question = "Mere pet ke health ke liye kya best advice hai?"; // Static question, aap isko input field se le sakte hain
+    const responseArea = document.getElementById("responseArea");
+
+    responseArea.textContent = "Thinking...";
+    try {
+        const answer = await getPetResponse(question);
+        responseArea.textContent = answer;
+    } catch (error) {
+        responseArea.textContent = "API error, try again!";
+    }
+});
+
+
+
+
+
+
+        
+
+      
+        
         // DOM Elements
         const videoElement = document.getElementById('videoElement');
         const startButton = document.getElementById('startCamera');
