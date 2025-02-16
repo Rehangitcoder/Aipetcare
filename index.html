@@ -1,0 +1,375 @@
+Powered powered by AI <!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Pet Care</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.3/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --secondary-gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            --accent-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --error-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+        }
+
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-button {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            transition: all 0.3s ease;
+        }
+
+        .feature-button:hover::after {
+            transform: rotate(45deg) translateY(-50%);
+        }
+
+        .pet-tip {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            animation: float 3s ease-in-out infinite;
+            z-index: 100;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(-50%) translateY(0px); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+            100% { transform: translateX(-50%) translateY(0px); }
+        }
+
+        .mode-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .icon-button {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .icon-button:hover {
+            transform: scale(1.1);
+        }
+
+        .feature-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 640px) {
+            .feature-panel {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .icon-button {
+                width: 40px;
+                height: 40px;
+            }
+            
+            h1 {
+                font-size: 1.75rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .pet-tip {
+                font-size: 0.8rem;
+                padding: 8px 16px;
+            }
+            
+            .mode-indicator {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            transform: translateX(200%);
+            animation: slideIn 0.5s forwards;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            to { transform: translateX(0); }
+        }
+
+        .camera-feed {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 75%;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        #videoElement {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .control-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+
+        .mood-emoji {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2rem;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="container mx-auto max-w-4xl">
+        <!-- Header Section -->
+        <div class="text-center mb-6">
+            <h1 class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500 mb-2">
+                🐾 AI Pet Care 
+            </h1>
+            <p class="text-gray-300">Your Advanced Pet Care Companion Powered By AI </p>
+        </div>
+
+        <!-- Main Interface -->
+        <div class="bg-gray-800 rounded-3xl p-4 shadow-2xl">
+            <!-- Mode Indicator -->
+            <div class="mode-indicator glass-morphism text-white">
+                <i class="fas fa-robot"></i>
+                <span id="modeText">Normal Mode</span>
+            </div>
+
+            <!-- Camera Section -->
+            <div class="camera-feed bg-gray-900">
+                <video id="videoElement" autoplay playsinline></video>
+                <div id="moodEmoji" class="mood-emoji">🐱</div>
+                
+                <!-- Controls Overlay -->
+                <div class="control-overlay">
+                    <div class="flex justify-center space-x-4">
+                        <button id="startCamera" class="icon-button bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                            <i class="fas fa-camera-retro text-xl"></i>
+                        </button>
+                        <button id="voiceToggle" class="icon-button bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+                            <i class="fas fa-microphone text-xl"></i>
+                        </button>
+                        <button id="askQuestion" class="icon-button bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
+                            <i class="fas fa-comment-dots text-xl"></i>
+                        </button>
+                        <button id="modeSwitch" class="icon-button bg-gradient-to-r from-green-500 to-green-600 text-white">
+                            <i class="fas fa-paw text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Panel -->
+            <div class="feature-panel glass-morphism">
+                <button class="feature-button glass-morphism text-white p-3 rounded-lg text-center">
+                    <i class="fas fa-heart text-red-400 text-xl mb-2"></i>
+                    <div class="text-xs">Health</div>
+                </button>
+                <button class="feature-button glass-morphism text-white p-3 rounded-lg text-center">
+                    <i class="fas fa-bone text-yellow-400 text-xl mb-2"></i>
+                    <div class="text-xs">Food</div>
+                </button>
+                <button class="feature-button glass-morphism text-white p-3 rounded-lg text-center">
+                    <i class="fas fa-running text-green-400 text-xl mb-2"></i>
+                    <div class="text-xs">Behavior</div>
+                </button>
+                <button class="feature-button glass-morphism text-white p-3 rounded-lg text-center">
+                    <i class="fas fa-calendar-check text-blue-400 text-xl mb-2"></i>
+                    <div class="text-xs">Timer</div>
+                </button>
+                <button class="feature-button glass-morphism text-white p-3 rounded-lg text-center">
+                    <i class="fas fa-notes-medical text-pink-400 text-xl mb-2"></i>
+                    <div class="text-xs">Medicine</div>
+                </button>
+                <button class="feature-button glass-morphism text-white p-3 rounded-lg text-center">
+                    <i class="fas fa-history text-purple-400 text-xl mb-2"></i>
+                    <div class="text-xs">Records</div>
+                </button>
+            </div>
+
+            <!-- Response Area -->
+            <div id="responseArea" class="mt-4 p-4 rounded-xl glass-morphism text-white text-center">
+                Show your pet in camera and press buttons for help
+            </div>
+        </div>
+
+        <!-- Floating Tip -->
+        <div class="pet-tip glass-morphism text-white text-center">
+            <i class="fas fa-lightbulb text-yellow-400 mr-2"></i>
+            <span id="tipText">Tip: Check your pet's health daily</span>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const videoElement = document.getElementById('videoElement');
+        const startButton = document.getElementById('startCamera');
+        const voiceToggle = document.getElementById('voiceToggle');
+        const askQuestion = document.getElementById('askQuestion');
+        const modeSwitch = document.getElementById('modeSwitch');
+        const responseArea = document.getElementById('responseArea');
+        const modeText = document.getElementById('modeText');
+        const moodEmoji = document.getElementById('moodEmoji');
+        const tipText = document.getElementById('tipText');
+
+        // State
+        let isVoiceEnabled = true;
+        let isListening = false;
+        let stream = null;
+        let currentMode = 'normal';
+        
+        // Tips rotation
+        const tips = [
+            "Tip: Exercise your pet daily",
+            "Tip: Keep fresh water available",
+            "Tip: Regular vet checkups are important",
+            "Tip: Proper nutrition matters"
+        ];
+
+        let tipIndex = 0;
+        setInterval(() => {
+            tipIndex = (tipIndex + 1) % tips.length;
+            tipText.textContent = tips[tipIndex];
+        }, 5000);
+
+        // Mood emojis
+        const moods = ['🐱', '🐶', '🐰', '🐦', '🐹'];
+        setInterval(() => {
+            moodEmoji.textContent = moods[Math.floor(Math.random() * moods.length)];
+        }, 3000);
+
+        // Notification system
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification glass-morphism text-white`;
+            notification.style.background = type === 'success' ? 'var(--secondary-gradient)' : 'var(--error-gradient)';
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>
+                ${message}
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // Mode switching
+        modeSwitch.addEventListener('click', () => {
+            const modes = {
+                'normal': { text: 'Playtime Mode', icon: 'fa-gamepad' },
+                'playtime': { text: 'Training Mode', icon: 'fa-graduation-cap' },
+                'training': { text: 'Normal Mode', icon: 'fa-paw' }
+            };
+            currentMode = currentMode === 'normal' ? 'playtime' : 
+                         currentMode === 'playtime' ? 'training' : 'normal';
+            modeText.textContent = modes[currentMode].text;
+            modeSwitch.innerHTML = `<i class="fas ${modes[currentMode].icon} text-xl"></i>`;
+            showNotification(`Mode changed to: ${modes[currentMode].text}`);
+        });
+
+        // Enhanced camera handling
+        startButton.addEventListener('click', async () => {
+            try {
+                if (!stream) {
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            facingMode: 'environment',
+                            width: { ideal: 1920 },
+                            height: { ideal: 1080 }
+                        } 
+                    });
+                    videoElement.srcObject = stream;
+                    startButton.innerHTML = '<i class="fas fa-stop text-xl"></i>';
+                    showNotification('Camera started');
+                } else {
+                    stream.getTracks().forEach(track => track.stop());
+                    videoElement.srcObject = null;
+                    stream = null;
+                    startButton.innerHTML = '<i class="fas fa-camera-retro text-xl"></i>';
+                    showNotification('Camera stopped');
+                }
+            } catch (err) {
+                showNotification('Camera access error', 'error');
+            }
+        });
+
+        // Voice controls
+        voiceToggle.addEventListener('click', () => {
+            isVoiceEnabled = !isVoiceEnabled;
+            voiceToggle.innerHTML = `<i class="fas fa-${isVoiceEnabled ? 'microphone' : 'microphone-slash'} text-xl"></i>`;
+            showNotification(`Voice ${isVoiceEnabled ? 'enabled' : 'disabled'}`);
+        });
+
+        // Question handling
+        askQuestion.addEventListener('click', () => {
+            if (!stream) {
+                showNotification('Please start camera first', 'error');
+                return;
+            }
+            responseArea.textContent = "Analyzing pet behavior...";
+            showNotification('Processing your request');
+        });
+    </script>
+</body>
+</html>
