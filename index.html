@@ -1,444 +1,219 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Pet Care</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.3/dist/tailwind.min.css" rel="stylesheet">
     <style>
-
-<div id="chatbox" class="glass-morphism p-4 rounded-xl">
-    <div id="chatHistory" class="text-white mb-2" style="max-height: 200px; overflow-y: auto;"></div>
-    <input id="userInput" type="text" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Ask something...">
-    <button id="sendMessage" class="bg-blue-500 p-2 mt-2 rounded text-white">Send</button>
-</div>
-        
-        :root {
-            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            --secondary-gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
-            --accent-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            --error-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        .chat-message {
+            display: block;
+            word-wrap: break-word;
+            margin-bottom: 2px;
         }
-
-        body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            min-height: 100vh;
-        }
-
-        .glass-morphism {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-
-        .feature-button {
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-button::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.1);
-            transform: rotate(45deg);
-            transition: all 0.3s ease;
-        }
-
-        .feature-button:hover::after {
-            transform: rotate(45deg) translateY(-50%);
-        }
-
-        .pet-tip {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            animation: float 3s ease-in-out infinite;
-            z-index: 100;
-            width: 90%;
-            max-width: 400px;
-        }
-
-        @keyframes float {
-            0% { transform: translateX(-50%) translateY(0px); }
-            50% { transform: translateX(-50%) translateY(-10px); }
-            100% { transform: translateX(-50%) translateY(0px); }
-        }
-
-        .mode-indicator {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 10;
-        }
-
-        .icon-button {
-            width: 48px;
-            height: 48px;
+        .spinner {
+            display: none;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
+            border-top-color: #3498db;
+            animation: spin 1s linear infinite;
         }
 
-        .icon-button:hover {
-            transform: scale(1.1);
-        }
-
-        .feature-panel {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 10px;
-            padding: 15px;
-            border-radius: 15px;
-            margin-top: 15px;
-        }
-
-        @media (max-width: 640px) {
-            .feature-panel {
-                grid-template-columns: repeat(3, 1fr);
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
             }
-            
-            .icon-button {
-                width: 40px;
-                height: 40px;
-            }
-            
-            h1 {
-                font-size: 1.75rem !important;
+            100% {
+                transform: rotate(360deg);
             }
         }
-
-        @media (max-width: 480px) {
-            .pet-tip {
-                font-size: 0.8rem;
-                padding: 8px 16px;
-            }
-            
-            .mode-indicator {
-                font-size: 0.8rem;
-                padding: 6px 12px;
-            }
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: 10px;
-            transform: translateX(200%);
-            animation: slideIn 0.5s forwards;
-            z-index: 1000;
-        }
-
-        @keyframes slideIn {
-            to { transform: translateX(0); }
-        }
-
-        .camera-feed {
-            position: relative;
-            width: 100%;
-            height: 0;
-            padding-bottom: 75%;
-            border-radius: 20px;
-            overflow: hidden;
-        }
-
-        #videoElement {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .control-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 20px;
-            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
-        }
-
-        .mood-emoji {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 2rem;
-            z-index: 10;
-        }
+          #chatbox::-webkit-scrollbar {
+      width: 8px;
+    }
+    .chatbox::-webkit-scrollbar-track {
+      background-color: #F3F4F6;
+    }
+    .chatbox::-webkit-scrollbar-thumb {
+      background-color: #6B7280;
+      border-radius: 4px;
+    }
     </style>
 </head>
-<body class="p-4">
-    <div class="container mx-auto max-w-4xl">
-        <!-- Header Section -->
-        <div class="text-center mb-6">
-            <h1 class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500 mb-2">
-                🐾 AI Pet Care 
-            </h1>
-            <p class="text-gray-300">Your Advanced Pet Care Companion Powered By AI </p>
-        </div>
-
-        <!-- Main Interface -->
-        <div class="bg-gray-800 rounded-3xl p-4 shadow-2xl">
-            <!-- Mode Indicator -->
-            <div class="mode-indicator glass-morphism text-white">
-                <i class="fas fa-robot"></i>
-                <span id="modeText">Normal Mode</span>
-            </div>
-
-            <!-- Camera Section -->
-            <div class="camera-feed bg-gray-900">
-                <video id="videoElement" autoplay playsinline></video>
-                <div id="moodEmoji" class="mood-emoji">🐱</div>
-                
-                <!-- Controls Overlay -->
-                <div class="control-overlay">
-                    <div class="flex justify-center space-x-4">
-                        <button id="startCamera" class="icon-button bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-                            <i class="fas fa-camera-retro text-xl"></i>
-                        </button>
-                        <button id="voiceToggle" class="icon-button bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-                            <i class="fas fa-microphone text-xl"></i>
-                        </button>
-                        <button id="askQuestion" class="icon-button bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
-                            <i class="fas fa-comment-dots text-xl"></i>
-                        </button>
-                        <button id="modeSwitch" class="icon-button bg-gradient-to-r from-green-500 to-green-600 text-white">
-                            <i class="fas fa-paw text-xl"></i>
+<body class="bg-gray-900">
+    <div class="container mx-auto px-4 h-full relative max-w-md">
+        <div class=" py-6 px-8 rounded max-w-md mx-auto h-full flex flex-col">
+            <div id="chatbox" class="flex flex-col h-full overflow-y-scroll pb-16 flex-grow mb-20 space-y-2">
+</div>
+            <div class="fixed bottom-0 left-0 w-full bg-gray-800 py-2 px-4 max-w-md mx-auto ml-auto mr-auto md:bottom-0 md:left-auto md:right-auto md:transform" style="z-index: 10;">
+                <form id="chatForm">
+                    <div class="flex w-full">
+                        <input id="chatInput" type="text" class="w-full py-2 px-4 mb-4 rounded-l bg-gray-700 text-white border border-gray-600" placeholder="Type your message">
+                        <button id="infoButton" type="button" class="rounded-r bg-gray-700 text-white border border-gray-600 px-4 mb-4 relative" onclick="showInfoPopup(event)">
+                            <div id="infoTooltip" class="absolute hidden -left-40 bottom-full mb-2 bg-gray-700 text-white text-xs p-2 rounded-lg shadow" style="width: 200px;">Simply ask for an image by describing it or type <strong>/image</strong> followed by the description to generate an image.</div>
+                            <i class="fas fa-image"></i>
                         </button>
                     </div>
-                </div>
+                    <button id="sendButton" class="w-full py-2 px-4 bg-green-500 text-white font-bold rounded">Send</button>
+                </form>
             </div>
-
-            <!-- Feature Panel -->
-            <div class="feature-panel glass-morphism">
-                <button class="feature-button glass-morphism text-white p-3 rounded-lg text-center">
-                    <i class="fas fa-heart text-red-400 text-xl mb-2"></i>
-                    <div class="text-xs">Health</div>
-                </button>
-                <button class="feature-button glass-morphism text-white p-3 rounded-lg text-center">
-                    <i class="fas fa-bone text-yellow-400 text-xl mb-2"></i>
-                    <div class="text-xs">Food</div>
-                </button>
-                <button class="feature-button glass-morphism text-white p-3 rounded-lg text-center">
-                    <i class="fas fa-running text-green-400 text-xl mb-2"></i>
-                    <div class="text-xs">Behavior</div>
-                </button>
-                <button class="feature-button glass-morphism text-white p-3 rounded-lg text-center">
-                    <i class="fas fa-calendar-check text-blue-400 text-xl mb-2"></i>
-                    <div class="text-xs">Timer</div>
-                </button>
-                <button class="feature-button glass-morphism text-white p-3 rounded-lg text-center">
-                    <i class="fas fa-notes-medical text-pink-400 text-xl mb-2"></i>
-                    <div class="text-xs">Medicine</div>
-                </button>
-                <button class="feature-button glass-morphism text-white p-3 rounded-lg text-center">
-                    <i class="fas fa-history text-purple-400 text-xl mb-2"></i>
-                    <div class="text-xs">Records</div>
-                </button>
-            </div>
-
-            <!-- Response Area -->
-            <div id="responseArea" class="mt-4 p-4 rounded-xl glass-morphism text-white text-center">
-                Show your pet in camera and press buttons for help
-            </div>
-        </div>
-
-        <!-- Floating Tip -->
-        <div class="pet-tip glass-morphism text-white text-center">
-            <i class="fas fa-lightbulb text-yellow-400 mr-2"></i>
-            <span id="tipText">Tip: Check your pet's health daily</span>
+            <div class="spinner absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20"></div>
         </div>
     </div>
 
     <script>
+        function displayLargeImage(imageUrl) {
+            const largeImageContainer = document.createElement('div');
+            largeImageContainer.className = 'fixed top-0 left-0 w-screen p-2 h-screen bg-black bg-opacity-70 flex justify-center items-center z-30';
+            largeImageContainer.onclick = (e) => {
+                e.stopPropagation();
+                largeImageContainer.remove();
+            }
 
-document.getElementById("sendMessage").addEventListener("click", async () => {
-    const userInput = document.getElementById("userInput").value;
-    const chatHistory = document.getElementById("chatHistory");
+            const largeImage = document.createElement('img');
+            largeImage.src = imageUrl;
+            largeImage.className = 'max-w-full max-h-full rounded-lg';
 
-    if (!userInput) return;
+            const downloadLargeButton = document.createElement("button");
+            downloadLargeButton.innerHTML = "Download";
+            downloadLargeButton.className = "absolute bottom-6 md:bottom-10 left-1/2 p-2 text-white rounded bg-green-500 bg-opacity-80 hover:bg-opacity-100 transform -translate-x-1/2";
+            downloadLargeButton.onclick = (e) => {
+              e.stopPropagation();
+              const a = document.createElement('a');
+              a.href = imageUrl;
+              a.download = 'generated-image.png';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            };
 
-    chatHistory.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
-    document.getElementById("userInput").value = "";
+            const closeButton = document.createElement('button');
+            closeButton.innerHTML = '<i class="fas fa-times"></i>';
+            closeButton.className = 'absolute top-6 right-6 p-2 text-red-500 rounded-full bg-opacity-80 hover:bg-opacity-100';
+            closeButton.onclick = (e) => {
+              e.stopPropagation();
+              largeImageContainer.remove();
+            };
 
-    try {
-        const answer = await getPetResponse(userInput);
-        chatHistory.innerHTML += `<p><strong>AI:</strong> ${answer}</p>`;
-    } catch (error) {
-        chatHistory.innerHTML += `<p style="color: red;">Error getting response</p>`;
-    }
-});
-        
+            largeImageContainer.appendChild(largeImage);
+            largeImageContainer.appendChild(downloadLargeButton);
+            largeImageContainer.appendChild(closeButton);
+            document.body.appendChild(largeImageContainer);
+        }
+        const chatForm = document.getElementById("chatForm");
+        const sendButton = document.getElementById("sendButton");
+        const chatInput = document.getElementById('chatInput');
+        chatInput.focus();
+        const chatbox = document.getElementById('chatbox');
+        const spinner = document.querySelector('.spinner');
 
-async function getPetResponse(question) {
-    const apiKey = "sk-cbd38b06c0f24fbb96020ccd5f436357"; // Yahan apni API key daalein
-    const endpoint = "https://api.deepseek.com/v1/chat"; // DeepSeek ka endpoint check karein
-
-    const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-            prompt: question,
-            max_tokens: 100
-        })
-    });
-
-    const data = await response.json();
-    return data.choices[0].text; // Response extract karna
-}
-
-// Button click par chatbot response dikhana
-document.getElementById("askQuestion").addEventListener("click", async () => {
-    const question = "Mere pet ke health ke liye kya best advice hai?"; // Static question, aap isko input field se le sakte hain
-    const responseArea = document.getElementById("responseArea");
-
-    responseArea.textContent = "Thinking...";
-    try {
-        const answer = await getPetResponse(question);
-        responseArea.textContent = answer;
-    } catch (error) {
-        responseArea.textContent = "API error, try again!";
-    }
-});
-
-
-
-
-
-
-        
-
-      
-        
-        // DOM Elements
-        const videoElement = document.getElementById('videoElement');
-        const startButton = document.getElementById('startCamera');
-        const voiceToggle = document.getElementById('voiceToggle');
-        const askQuestion = document.getElementById('askQuestion');
-        const modeSwitch = document.getElementById('modeSwitch');
-        const responseArea = document.getElementById('responseArea');
-        const modeText = document.getElementById('modeText');
-        const moodEmoji = document.getElementById('moodEmoji');
-        const tipText = document.getElementById('tipText');
-
-        // State
-        let isVoiceEnabled = true;
-        let isListening = false;
-        let stream = null;
-        let currentMode = 'normal';
-        
-        // Tips rotation
-        const tips = [
-            "Tip: Exercise your pet daily",
-            "Tip: Keep fresh water available",
-            "Tip: Regular vet checkups are important",
-            "Tip: Proper nutrition matters"
-        ];
-
-        let tipIndex = 0;
-        setInterval(() => {
-            tipIndex = (tipIndex + 1) % tips.length;
-            tipText.textContent = tips[tipIndex];
-        }, 5000);
-
-        // Mood emojis
-        const moods = ['🐱', '🐶', '🐰', '🐦', '🐹'];
-        setInterval(() => {
-            moodEmoji.textContent = moods[Math.floor(Math.random() * moods.length)];
-        }, 3000);
-
-        // Notification system
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `notification glass-morphism text-white`;
-            notification.style.background = type === 'success' ? 'var(--secondary-gradient)' : 'var(--error-gradient)';
-            notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>
-                ${message}
-            `;
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 3000);
+        function displayMessage(message, isUser) {
+            const msgElem = document.createElement('p');
+            msgElem.textContent = message;
+            msgElem.className = isUser ? 'chat-message block text-right text-white mt-2 bg-green-500 rounded-tl-lg rounded-br-lg rounded-bl-sm px-4 py-2' : 'chat-message block text-white mt-2 bg-gray-600 rounded-tr-lg rounded-br-lg rounded-bl-md px-4 py-2';
+            chatbox.appendChild(msgElem);
         }
 
-        // Mode switching
-        modeSwitch.addEventListener('click', () => {
-            const modes = {
-                'normal': { text: 'Playtime Mode', icon: 'fa-gamepad' },
-                'playtime': { text: 'Training Mode', icon: 'fa-graduation-cap' },
-                'training': { text: 'Normal Mode', icon: 'fa-paw' }
-            };
-            currentMode = currentMode === 'normal' ? 'playtime' : 
-                         currentMode === 'playtime' ? 'training' : 'normal';
-            modeText.textContent = modes[currentMode].text;
-            modeSwitch.innerHTML = `<i class="fas ${modes[currentMode].icon} text-xl"></i>`;
-            showNotification(`Mode changed to: ${modes[currentMode].text}`);
-        });
+        async function callApi(apiUrl, prompt, prependPersona = false) {
+            if (prependPersona) {
+                prompt = "Follow instructions precisely! If the user asks to generate, create or make an image, photo, or picture by describing it, You will reply with '/image' + description. Otherwise, You will respond normally. Avoid additional explanations." + prompt;
+            }
+            chatInput.value = apiUrl === "https://backend.buildpicoapps.com/aero/run/image-generation-api?pk=v1-Z0FBQUFBQm5zaDBrdGtjdkw1SkxZZkxVenQxZDZoYmxoVTNqeUZrNHh5dlc3am5IUUQ1QkRjSVJoRUloQ0xMMUZlWDlTNVBHSlBWOElBVjQ4X3U5dGNSYzdVbGNnWV9XZ2c9PQ==" ? "Generating..." : "Typing...";
+            chatInput.disabled = true;
+            sendButton.disabled = true;
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({prompt})
+            });
 
-        // Enhanced camera handling
-        startButton.addEventListener('click', async () => {
+            chatInput.value = "";
+            chatInput.disabled = false;
+            sendButton.disabled = false;
+            chatInput.focus();
+            return response.json();
+        }
+
+        function handleError(error) {
+            console.error('Error:', error);
+            displayMessage('An error occurred. Please try again.', false);
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            displayMessage(message, true);
+            chatInput.value = '';
+
+            const apiUrl = message.startsWith('/image') ? 'https://backend.buildpicoapps.com/aero/run/image-generation-api?pk=v1-Z0FBQUFBQm5zaDBrdGtjdkw1SkxZZkxVenQxZDZoYmxoVTNqeUZrNHh5dlc3am5IUUQ1QkRjSVJoRUloQ0xMMUZlWDlTNVBHSlBWOElBVjQ4X3U5dGNSYzdVbGNnWV9XZ2c9PQ=='
+                                                      : 'https://backend.buildpicoapps.com/aero/run/llm-api?pk=v1-Z0FBQUFBQm5zaDBrdGtjdkw1SkxZZkxVenQxZDZoYmxoVTNqeUZrNHh5dlc3am5IUUQ1QkRjSVJoRUloQ0xMMUZlWDlTNVBHSlBWOElBVjQ4X3U5dGNSYzdVbGNnWV9XZ2c9PQ==';
+
             try {
-                if (!stream) {
-                    stream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { 
-                            facingMode: 'environment',
-                            width: { ideal: 1920 },
-                            height: { ideal: 1080 }
-                        } 
-                    });
-                    videoElement.srcObject = stream;
-                    startButton.innerHTML = '<i class="fas fa-stop text-xl"></i>';
-                    showNotification('Camera started');
+                const prependPersona = apiUrl === 'https://backend.buildpicoapps.com/aero/run/llm-api?pk=v1-Z0FBQUFBQm5zaDBrdGtjdkw1SkxZZkxVenQxZDZoYmxoVTNqeUZrNHh5dlc3am5IUUQ1QkRjSVJoRUloQ0xMMUZlWDlTNVBHSlBWOElBVjQ4X3U5dGNSYzdVbGNnWV9XZ2c9PQ==';
+                const data = await callApi(apiUrl, message.startsWith('/image') ? message.substring(6).trim() : message, prependPersona);
+                if (data.status === 'success') {
+                    if (message.toLowerCase().startsWith('/image')) {
+                        handleImageResponse(data);
+                    } else {
+                        if (data.text.trim().toLowerCase().startsWith('/image')) {
+                            const imageDescription = data.text.substring(data.text.toLowerCase().indexOf('/image') + 6).trim();
+                            const imageData = await callApi('https://backend.buildpicoapps.com/aero/run/image-generation-api?pk=v1-Z0FBQUFBQm5zaDBrdGtjdkw1SkxZZkxVenQxZDZoYmxoVTNqeUZrNHh5dlc3am5IUUQ1QkRjSVJoRUloQ0xMMUZlWDlTNVBHSlBWOElBVjQ4X3U5dGNSYzdVbGNnWV9XZ2c9PQ==', imageDescription, false);
+                            handleImageResponse(imageData);
+                        } else {
+                            displayMessage(data.text, false);
+                        }
+                    }
                 } else {
-                    stream.getTracks().forEach(track => track.stop());
-                    videoElement.srcObject = null;
-                    stream = null;
-                    startButton.innerHTML = '<i class="fas fa-camera-retro text-xl"></i>';
-                    showNotification('Camera stopped');
+                    handleError(data);
                 }
-            } catch (err) {
-                showNotification('Camera access error', 'error');
+
+                function handleImageResponse(imageData) {
+                    if (imageData.status === 'success') {
+                        const imageContainer = document.createElement('div');
+                        imageContainer.className = 'mx-auto mt-2 relative w-48 h-48 bg-center border-4 rounded-xl border-gray-700 bg-cover';
+                        imageContainer.style.backgroundImage = `url(${imageData.imageUrl})`;
+                        imageContainer.onclick = (e) => {
+                            e.stopPropagation();
+                            displayLargeImage(imageData.imageUrl);
+                        }
+
+                        const downloadButton = document.createElement('button');
+                        downloadButton.innerHTML = '';
+                        downloadButton.className = 'absolute bottom-0 right-0 p-2 text-yellow-500 rounded-tl hover:bg-blue-500 hover:text-white';
+                        downloadButton.onclick = () => {
+                          const a = document.createElement('a');
+                          a.href = imageData.imageUrl;
+                          a.download = 'generated-image.png';
+                          document.body.appendChild(a);
+                          a.click();
+                          document.body.removeChild(a);
+                        };
+
+                        imageContainer.appendChild(downloadButton);
+                        chatbox.appendChild(imageContainer);
+                    } else {
+                        handleError(imageData);
+                    }
+                }
+            } catch (error) {
+                handleError(error);
             }
         });
 
-        // Voice controls
-        voiceToggle.addEventListener('click', () => {
-            isVoiceEnabled = !isVoiceEnabled;
-            voiceToggle.innerHTML = `<i class="fas fa-${isVoiceEnabled ? 'microphone' : 'microphone-slash'} text-xl"></i>`;
-            showNotification(`Voice ${isVoiceEnabled ? 'enabled' : 'disabled'}`);
-        });
+        function showInfoPopup(e) {
+          e.preventDefault();
+          const tooltip = document.getElementById("infoTooltip");
+          if (tooltip.classList.contains("hidden")) {
+            tooltip.classList.remove("hidden");
+          } else {
+            tooltip.classList.add("hidden");
+          }
+          
+        }
 
-        // Question handling
-        askQuestion.addEventListener('click', () => {
-            if (!stream) {
-                showNotification('Please start camera first', 'error');
-                return;
-            }
-            responseArea.textContent = "Analyzing pet behavior...";
-            showNotification('Processing your request');
-        });
     </script>
-</body>
-</html>
+
+<script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="Sajkhan" data-description="Support me on Buy me a coffee!" data-message="" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+</body></html>
