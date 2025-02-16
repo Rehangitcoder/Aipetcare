@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
+<div id="chatbox" class="glass-morphism p-4 rounded-xl">
+    <div id="chatHistory" class="text-white mb-2" style="max-height: 200px; overflow-y: auto;"></div>
+    <input id="userInput" type="text" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Ask something...">
+    <button id="sendMessage" class="bg-blue-500 p-2 mt-2 rounded text-white">Send</button>
+</div>
+
+    
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous">
     <meta charset="UTF-8">
@@ -265,7 +273,22 @@
 
     <script>
 
+document.getElementById("sendMessage").addEventListener("click", async () => {
+    const userInput = document.getElementById("userInput").value;
+    const chatHistory = document.getElementById("chatHistory");
 
+    if (!userInput) return;
+
+    chatHistory.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+    document.getElementById("userInput").value = "";
+
+    try {
+        const answer = await getPetResponse(userInput);
+        chatHistory.innerHTML += `<p><strong>AI:</strong> ${answer}</p>`;
+    } catch (error) {
+        chatHistory.innerHTML += `<p style="color: red;">Error getting response</p>`;
+    }
+});
         
 
 async function getPetResponse(question) {
